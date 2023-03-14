@@ -153,6 +153,7 @@ add_if(int ip_fd, int if_fd, char *tun, int brief, char *dev_node){
     int ip_muxid = 0;
     int arp_muxid = 0;
     int newppa = 0;
+    int getppa = -1;
     int ppa = 0;
     struct lifreq ifr;
     struct strioctl  strioc, strioc_if;
@@ -184,6 +185,20 @@ add_if(int ip_fd, int if_fd, char *tun, int brief, char *dev_node){
     if(newppa != ppa){
         fprintf(stderr, "Can't create %s\n", tun);             
         exit(1);
+    }
+
+    /* Ask driver for PPA and compare with expected */
+    strioc.ic_cmd = TUNGETPPA;
+    strioc.ic_timout = 0;
+    strioc.ic_len = 0;
+    strioc.ic_dp = 0;
+    if ((getppa = ioctl(if_fd, I_STR, &strioc)) < 0) {
+        perror("ioctl");
+        fprintf(stderr, "GETPPA failed %s\n", tun);
+        exit(1);
+    }
+    if (getppa != newppa) {
+        fprintf(stderr, "GETPPA returned %d, newppa was %d\n", getppa, newppa);
     }
 
     /* push ip module to the stream */
