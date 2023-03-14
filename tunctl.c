@@ -209,7 +209,7 @@ add_if(int ip_fd, int if_fd, char *tun, int brief, char *dev_node){
             fprintf (stderr, "Can't get flags\n");
             exit(1);
         }
-        strncpy (ifr.lifr_name, tun, sizeof (ifr.lifr_name));
+        strncpy (ifr.lifr_name, tun, sizeof (ifr.lifr_name) - 1);
         ifr.lifr_ppa = ppa;
         /* assign ppa according to the unit number returned by tun device */
         if (ioctl (if_fd, SIOCSLIFNAME, &ifr) < 0){
@@ -276,7 +276,7 @@ add_if(int ip_fd, int if_fd, char *tun, int brief, char *dev_node){
     }
 
     memset((void *)&ifr, 0x0, sizeof(struct lifreq));        
-    strncpy (ifr.lifr_name, tun, sizeof (ifr.lifr_name));
+    strncpy (ifr.lifr_name, tun, sizeof (ifr.lifr_name) - 1);
     ifr.lifr_ip_muxid  = ip_muxid;
     if(type == TAP){
         ifr.lifr_arp_muxid  = arp_muxid;
@@ -306,7 +306,7 @@ delete_if(int ip_fd, int if_fd, char *tun)
     }
 
     memset((void *)&ifr, 0x0, sizeof(struct lifreq));
-    strncpy (ifr.lifr_name, tun, sizeof (ifr.lifr_name));
+    strncpy (ifr.lifr_name, tun, sizeof (ifr.lifr_name) - 1);
 
     if (ioctl (ip_fd, SIOCGLIFFLAGS, &ifr) < 0){
         perror("ioctl");
@@ -382,9 +382,9 @@ get_dev_node (char *interface)
 	continue;
       strncpy(devname, interface, instance - interface);
     }
-    dev_node = malloc(NODE_LEN);
-    bzero(dev_node, NODE_LEN);      
-    snprintf(dev_node, NODE_LEN, "/dev/%s", devname);
+    dev_node = malloc(NODE_LEN + 5);
+    bzero(dev_node, NODE_LEN + 5);
+    snprintf(dev_node, NODE_LEN + 5, "/dev/%s", devname);
     return dev_node;
 }
 
